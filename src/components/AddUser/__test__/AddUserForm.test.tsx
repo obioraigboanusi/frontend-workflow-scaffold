@@ -37,7 +37,7 @@ describe('Verify AddUserForm integration', () => {
     await user.type(emailInput, 'jd@gmail.com');
 
     // submit form
-    user.click(submitBtn); // Awaiting this line will wait until the form is completely submitted. Consequently the next lines that test the intermittent states will fail. Hence don't await!
+    void user.click(submitBtn); // Awaiting this line will wait until the form is completely submitted. Consequently the next lines that test the intermittent states will fail. Hence don't await!
 
     await waitFor(() => expect(screen.getByText(/Submitting.../)).toBeInTheDocument());
     expect(screen.getByRole('button', { name: /submitting.../i })).toBeDisabled();
