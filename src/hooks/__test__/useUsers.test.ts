@@ -2,6 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../mocks/node';
+import { apiUrl } from '../../mocks/handlers';
 import { useUsers } from '../useUsers';
 import { mockUsers } from '../../mocks/users';
 import { createQueryWrapper } from '../../test/createQueryWrapper';
@@ -33,7 +34,7 @@ describe('useUsers Custom Hook', () => {
 
     const errorRes = { message: 'Something went wrong' };
     server.use(
-      http.get('/api/users', () => {
+      http.get(apiUrl('/api/users'), () => {
         return HttpResponse.json(errorRes, { status: 500 });
       }),
     );
