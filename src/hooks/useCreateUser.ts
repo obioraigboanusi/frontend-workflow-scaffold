@@ -6,7 +6,8 @@ export const useCreateUser = () => {
   return useMutation({
     mutationFn: createUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      // Returning the promise keeps the mutation pending until the list has refetched.
+      return queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 };

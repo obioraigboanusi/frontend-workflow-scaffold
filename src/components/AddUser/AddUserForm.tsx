@@ -42,7 +42,7 @@ function AddUserForm() {
   };
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
       aria-label="Add User Form"
       className="space-y-5 max-w-md mx-auto"
     >
