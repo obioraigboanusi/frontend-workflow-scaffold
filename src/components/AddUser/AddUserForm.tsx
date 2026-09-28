@@ -15,6 +15,7 @@ type FormData = yup.InferType<typeof schema>;
 
 function AddUserForm() {
   const [submitError, setSubmitError] = useState<string>('');
+  const [submitSuccess, setSubmitSuccess] = useState<string>('');
   const {
     register,
     handleSubmit,
@@ -28,12 +29,15 @@ function AddUserForm() {
 
   const onSubmit = async (data: FormData) => {
     setSubmitError('');
+    setSubmitSuccess('');
     try {
       await mutateAsync(data);
-      alert('User added successfully!');
+      setSubmitSuccess('User added successfully!');
       reset();
     } catch (error) {
-      setSubmitError((error as Error).message || 'Failed to add user. Please try again.');
+      setSubmitError(
+        typeof error === 'string' && error ? error : 'Failed to add user. Please try again.',
+      );
     }
   };
   return (
@@ -97,11 +101,14 @@ function AddUserForm() {
       </div>
 
       {submitError && (
-        <div className="">
-          <p role="alert" className="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400">
-            {submitError}
-          </p>
-        </div>
+        <p role="alert" className="text-xs font-medium text-red-600 dark:text-red-400">
+          {submitError}
+        </p>
+      )}
+      {submitSuccess && (
+        <p role="status" className="text-xs font-medium text-green-600 dark:text-green-400">
+          {submitSuccess}
+        </p>
       )}
       <button
         type="submit"
