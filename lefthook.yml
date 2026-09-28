@@ -17,14 +17,17 @@ pre-commit:
 pre-push:
   parallel: true
   jobs:
-    - name: format
+    - name: Format
       run: npm run format:check
 
-    - name: lint
+    - name: Lint
       run: npm run lint
 
-    - name: build
-      run: npm run build --noEmit
+    - name: Type Check
+      run: npm run typecheck
+
+    - name: Build
+      run: npm run build
 
     - name: Run Test Suite
       run: npm run test:ci

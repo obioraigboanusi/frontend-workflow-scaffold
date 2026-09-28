@@ -26,5 +26,8 @@ jobs:
       - name: Run Linter
         run: npm run lint
 
+      - name: Type Check
+        run: npm run typecheck
+
       - name: Build
-        run: npm run build --noEmit
+        run: npm run build
