@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useCreateUser } from '../../hooks/useCreateUser';
+import { useState } from 'react';
 
 const schema = yup
   .object({
@@ -13,6 +14,7 @@ const schema = yup
 type FormData = yup.InferType<typeof schema>;
 
 function AddUserForm() {
+  const [submitError, setSubmitError] = useState<string>('');
   const {
     register,
     handleSubmit,
@@ -25,12 +27,13 @@ function AddUserForm() {
   const { mutateAsync } = useCreateUser();
 
   const onSubmit = async (data: FormData) => {
+    setSubmitError('');
     try {
       await mutateAsync(data);
       alert('User added successfully!');
       reset();
     } catch (error) {
-      console.error('Failed to add user', error);
+      setSubmitError((error as Error).message || 'Failed to add user. Please try again.');
     }
   };
   return (
@@ -93,6 +96,13 @@ function AddUserForm() {
         )}
       </div>
 
+      {submitError && (
+        <div className="">
+          <p role="alert" className="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400">
+            {submitError}
+          </p>
+        </div>
+      )}
       <button
         type="submit"
         disabled={isSubmitting}
