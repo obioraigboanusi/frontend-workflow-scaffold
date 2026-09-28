@@ -3,6 +3,7 @@ import { useCreateUser } from '../useCreateUser';
 import { createQueryWrapper } from '../../test/createQueryWrapper';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../mocks/node';
+import { apiUrl } from '../../mocks/handlers';
 
 describe('Create user hook', () => {
   it('manages successful creation network cycles', async () => {
@@ -30,7 +31,7 @@ describe('Create user hook', () => {
     const errorRes = { message: 'Email address taken' };
 
     server.use(
-      http.post('/api/users', () => {
+      http.post(apiUrl('/api/users'), () => {
         return HttpResponse.json(errorRes, { status: 400 });
       }),
     );
