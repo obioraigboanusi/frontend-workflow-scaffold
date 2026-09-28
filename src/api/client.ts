@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-export const apiClient = axios.create({ baseURL: '/' });
+export const API_BASE_URL = import.meta.env.API_BASE_URL;
+
+export const apiClient = axios.create({ baseURL: API_BASE_URL });
 
 apiClient.interceptors.response.use(
   (response) => {

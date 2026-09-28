@@ -1,73 +1,45 @@
-# React + TypeScript + Vite
+# FE Dev Workflow Scaffold
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A reference setup for a clean, modern frontend toolchain: React + TypeScript + Vite,
+with automated formatting, linting, strict type checks, and testing wired into git
+hooks and CI.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Vite + React 19 + TypeScript (strict)
+- TanStack Query for server state
+- react-hook-form + yup for forms
+- MSW for API mocking in dev/tests
+- Vitest + Testing Library for tests
+- ESLint + Prettier for code quality
+- Lefthook for git hooks
 
-## React Compiler
+## Workflow
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `pre-commit`: lints and formats staged files only (fast, local)
+- `pre-push`: full typecheck, lint, build, and test suite (heavier, catches
+  what per-file checks miss)
+- CI mirrors pre-push on every PR, so hooks are a fast local gate, not the
+  only gate
 
-## Expanding the ESLint configuration
+## Getting started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+npm install
+npm run dev
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Scripts
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+| Script             | Purpose                          |
+| ------------------ | -------------------------------- |
+| `dev`              | local dev server                 |
+| `typecheck`        | type-check only, no build output |
+| `build`            | typecheck + production bundle    |
+| `lint` / `format`  | check code quality               |
+| `test` / `test:ci` | run test suite                   |
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+## Why these choices
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+- **MSW over manual fetch mocks**: mocks at the network layer, so components
+  and hooks are tested exactly as they run in production.
+- **Lefthook split (pre-commit vs pre-push)**: keeps commits fast while still
+  guaranteeing nothing broken reaches a shared branch.
