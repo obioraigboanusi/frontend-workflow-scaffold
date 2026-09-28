@@ -4,15 +4,17 @@ Thanks for using and improving this scaffold. This guide covers how to set up lo
 
 ## Prerequisites
 
-- Node.js 24.x (matches CI)
+- Node.js 24.x (matches CI; `.nvmrc` is provided, so `nvm use` works)
 - npm (a `package-lock.json` is committed; use `npm ci` for clean installs)
 
 ## Getting started
 
 ```bash
-git clone https://github.com/obioraigboanusi/user-management-fe-dev-workflow.git
-cd user-management-fe-dev-workflow
+git clone https://github.com/obioraigboanusi/frontend-workflow-scaffold.git
+cd frontend-workflow-scaffold
+nvm use          # Node 24, from .nvmrc
 npm ci
+cp .env.example .env
 npm run dev
 ```
 
@@ -33,6 +35,7 @@ npm run dev
 
 ## Git hooks (Lefthook)
 
+- **commit-msg**: commitlint rejects messages that do not follow Conventional Commits.
 - **pre-commit**: ESLint and Prettier check on staged files only. Fast, local feedback.
 - **pre-push**: format check, lint, typecheck, build, and the full test suite.
 
@@ -55,7 +58,7 @@ Use lowercase, hyphen-separated names, e.g. `feat/user-delete-action`, `fix/type
 
 ## Commit messages
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
+We follow [Conventional Commits](https://www.conventionalcommits.org/), enforced by a `commit-msg` hook (commitlint):
 
 ```
 <type>: <short imperative summary>
@@ -79,7 +82,7 @@ Keep the summary under about 72 characters, write in the imperative mood, and av
    ```bash
    npm run format:check && npm run lint && npm run typecheck && npm run build && npm run test:ci
    ```
-3. Open a PR against `main` with a clear description of what changed and why.
+3. Open a PR against `main`; the PR template will guide the description and checklist.
 4. Add screenshots or a short recording for any UI change.
 5. Keep PRs small. If a change touches unrelated concerns, split it.
 
@@ -89,7 +92,10 @@ CI must be green before merge. Both workflows (quality checks and tests) run on 
 
 - **TypeScript**: strict mode is on. Avoid `any`; prefer precise types and `import type` for type-only imports.
 - **Formatting**: Prettier is the source of truth (single quotes, semicolons, trailing commas, 100 columns). Do not hand-format; run `npm run format`.
-- **Linting**: ESLint with the React Hooks rules. Fix warnings instead of disabling rules. If you must disable one, add a comment explaining why.
+- **Linting**: type-aware ESLint (`recommendedTypeChecked`) plus the React Hooks rules. Fix findings instead of disabling rules. If you must disable one, scope it to a single line and add a `-- reason`.
+- **Promises**: await them, return them, or mark intentional fire-and-forget with `void`.
+- **Environment variables**: only `VITE_`-prefixed variables reach client code. Add new ones to `.env.example` and `src/vite-env.d.ts`.
+- **API errors**: the API client rejects with a plain message string. Do not assume an `Error` instance; see `src/api/client.ts`.
 - **Forms**: react-hook-form with a yup schema; show field errors inline and submission errors to the user, never only in the console.
 - **Server state**: use TanStack Query hooks in `src/hooks`; keep raw API calls in `src/api`.
 
@@ -97,7 +103,7 @@ CI must be green before merge. Both workflows (quality checks and tests) run on 
 
 - Co-locate tests in a `__test__` folder next to the code they cover.
 - Use Testing Library and query by role or label, the way a user would find elements. Avoid testing implementation details.
-- Mock the network with MSW handlers in `src/mocks`, not by stubbing `fetch` or `axios` directly.
+- Mock the network with MSW handlers in `src/mocks`, not by stubbing `fetch` or `axios` directly. Build URLs with `apiUrl()` from `src/mocks/handlers.ts` so tests work regardless of `VITE_API_BASE_URL`.
 - Every new component or hook should cover its loading, error, empty, and success states where relevant.
 - When testing intermediate UI states (for example a submitting button), do not `await` the click that triggers the async work; assert the transient state, then await the final outcome.
 
@@ -113,6 +119,7 @@ src/
   pages/        Route-level pages
   test/         Shared test utilities
   types/        Shared TypeScript types
+  vite-env.d.ts Typed `import.meta.env` variables
 ```
 
 ## Questions or proposals
