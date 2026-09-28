@@ -1,16 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import AddUserForm from '../AddUserForm';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
+import { http, HttpResponse } from 'msw';
+import { server } from '../../../mocks/node';
+import { apiUrl } from '../../../mocks/handlers';
 import { createQueryWrapper } from '../../../test/createQueryWrapper';
 
-const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
-
 describe('Verify AddUserForm integration', () => {
-  beforeEach(() => {
-    alertMock.mockClear();
-  });
-
   it('should validate required fields and shows inline errors ', async () => {
     render(<AddUserForm />, { wrapper: createQueryWrapper() });
 
@@ -46,10 +42,27 @@ describe('Verify AddUserForm integration', () => {
     await waitFor(() => expect(screen.getByText(/Submitting.../)).toBeInTheDocument());
     expect(screen.getByRole('button', { name: /submitting.../i })).toBeDisabled();
 
-    // listen for success alert
-    await waitFor(() => expect(alertMock).toHaveBeenCalledWith('User added successfully!'));
+    // inline success message is announced to assistive tech
+    expect(await screen.findByRole('status')).toHaveTextContent('User added successfully!');
 
     // The Ui switches back out of submitting
     expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+  });
+
+  it('shows the server error message when submission fails', async () => {
+    server.use(
+      http.post(apiUrl('/api/users'), () =>
+        HttpResponse.json({ message: 'Email address taken' }, { status: 400 }),
+      ),
+    );
+
+    render(<AddUserForm />, { wrapper: createQueryWrapper() });
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/name/i), 'james don');
+    await user.type(screen.getByLabelText(/email/i), 'jd@gmail.com');
+    await user.click(screen.getByRole('button', { name: /submit/i }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Email address taken');
   });
 });
